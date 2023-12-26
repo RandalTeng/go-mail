@@ -296,6 +296,21 @@ func (m *Msg) SetAddrHeader(h AddrHeader, v ...string) error {
 	return nil
 }
 
+// SetAddrHeaderOrigin sets mail.Address related header field of the Msg
+func (m *Msg) SetAddrHeaderOrigin(h AddrHeader, al ...*mail.Address) {
+	if m.addrHeader == nil {
+		m.addrHeader = make(map[AddrHeader][]*mail.Address)
+	}
+	switch h {
+	case HeaderFrom:
+		if len(al) > 0 {
+			m.addrHeader[h] = []*mail.Address{al[0]}
+		}
+	default:
+		m.addrHeader[h] = al
+	}
+}
+
 // SetAddrHeaderIgnoreInvalid sets an address related header field of the Msg and ignores invalid address
 // in the validation process
 func (m *Msg) SetAddrHeaderIgnoreInvalid(h AddrHeader, v ...string) {
