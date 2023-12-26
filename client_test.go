@@ -177,6 +177,9 @@ func TestWithPort(t *testing.T) {
 			if c.port != tt.want {
 				t.Errorf("failed to set custom port. Want: %d, got: %d", tt.want, c.port)
 			}
+			if c.port == 465 && !c.ssl {
+				t.Errorf("failed to set SMTP ssl port, want ssl to true, got: false")
+			}
 		})
 	}
 }

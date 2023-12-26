@@ -237,6 +237,7 @@ func WithPort(p int) Option {
 			return ErrInvalidPort
 		}
 		c.port = p
+		c.ssl = p == 465 // auto set ssl to true, if port is 465 (default SMTP ssl port.)
 		return nil
 	}
 }
