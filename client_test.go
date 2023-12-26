@@ -493,6 +493,27 @@ func TestWithoutNoop(t *testing.T) {
 	}
 }
 
+// TestWithIgnoreRcptNotExist tests the WithIgnoreRcptNotExist method for the Client object
+func TestWithIgnoreRcptNotExist(t *testing.T) {
+	c, err := NewClient(DefaultHost, WithIgnoreRcptNotExist())
+	if err != nil {
+		t.Errorf("failed to create new client: %s", err)
+		return
+	}
+	if !c.ignoreRcptNotExist {
+		t.Errorf("WithIgnoreRcptNotExist failed. c.ignoreRcptNotExist expected to be: %t, got: %t", true, c.noNoop)
+	}
+
+	c, err = NewClient(DefaultHost)
+	if err != nil {
+		t.Errorf("failed to create new client: %s", err)
+		return
+	}
+	if c.ignoreRcptNotExist {
+		t.Errorf("WithIgnoreRcptNotExist failed. c.ignoreRcptNotExist expected to be: %t, got: %t", false, c.noNoop)
+	}
+}
+
 // TestSetSMTPAuthCustom tests the SetSMTPAuthCustom method for the Client object
 func TestSetSMTPAuthCustom(t *testing.T) {
 	tests := []struct {

@@ -9,7 +9,10 @@ package mail
 
 import (
 	"errors"
+	"net/textproto"
 	"strings"
+
+	"github.com/wneessen/go-mail/log"
 )
 
 // Send sends out the mail message
@@ -61,6 +64,16 @@ func (c *Client) Send(ml ...*Msg) (rerr error) {
 		c.sc.SetDSNRcptNotifyOption(rno)
 		for _, r := range rl {
 			if err := c.sc.Rcpt(r); err != nil {
+				var terr *textproto.Error
+				if errors.As(err, &terr) && c.ignoreRcptNotExist &&
+					terr.Code == errRcptNotExist.Code && terr.Msg == errRcptNotExist.Msg {
+					c.l.Warnf(log.Log{
+						Direction: log.DirServerToClient,
+						Format:    "Ignore rcpt which is not exist: %s",
+						Messages:  []interface{}{r},
+					})
+					continue
+				}
 				rse.Reason = ErrSMTPRcptTo
 				rse.errlist = append(rse.errlist, err)
 				rse.rcpt = append(rse.rcpt, r)

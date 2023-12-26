@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/textproto"
 	"os"
 	"strings"
 	"time"
@@ -102,6 +103,9 @@ type Client struct {
 	// noNoop indicates the Noop is to be skipped
 	noNoop bool
 
+	// ignoreRcptNotExist ignore address in to/cc/bcc address header which is not exists in remote server.
+	ignoreRcptNotExist bool
+
 	// HELO/EHLO string for the greeting the target SMTP server
 	helo string
 
@@ -188,6 +192,9 @@ var (
 	// DSNRcptNotifyOption in WithDSN
 	ErrInvalidDSNRcptNotifyCombination = errors.New("DSN rcpt notify option NEVER cannot be " +
 		"combined with any of SUCCESS, FAILURE or DELAY")
+
+	// errRcptNotExist only use when SMTP client verify RCPTs.
+	errRcptNotExist = &textproto.Error{Code: 550, Msg: "5.1.1 recipient is not exist"}
 )
 
 // NewClient returns a new Session client object
@@ -403,6 +410,14 @@ func WithDSNRcptNotifyType(rno ...DSNRcptNotifyOption) Option {
 func WithoutNoop() Option {
 	return func(c *Client) error {
 		c.noNoop = true
+		return nil
+	}
+}
+
+// WithIgnoreRcptNotExist ignore address in message to/cc/bcc if the address is unreachable.
+func WithIgnoreRcptNotExist() Option {
+	return func(c *Client) error {
+		c.ignoreRcptNotExist = true
 		return nil
 	}
 }
