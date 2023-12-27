@@ -743,7 +743,14 @@ func TestClient_DialWithContextOptionDialContextFunc(t *testing.T) {
 	called := false
 	c.dialContextFunc = func(ctx context.Context, network, address string) (net.Conn, error) {
 		called = true
-		return (&net.Dialer{}).DialContext(ctx, network, address)
+		nd := net.Dialer{}
+		if c.ssl {
+			td := tls.Dialer{NetDialer: &nd, Config: c.tlsconfig}
+			c.enc = true
+			return td.DialContext(ctx, network, address)
+		} else {
+			return nd.DialContext(ctx, network, address)
+		}
 	}
 
 	ctx := context.Background()
